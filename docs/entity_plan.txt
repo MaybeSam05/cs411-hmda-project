@@ -1,0 +1,187 @@
+HMDA 2017 NJ ENTITY PLAN
+
+
+ENTITY 1: INSTITUTION
+---------------------
+respondent_id
+
+Purpose:
+Represents the financial institution that reported the mortgage record.
+
+
+ENTITY 2: AGENCY
+----------------
+agency_code
+agency_name
+agency_abbr
+
+Purpose:
+Represents the government agency responsible for the reporting institution.
+
+
+ENTITY 3: LOAN APPLICATION
+--------------------------
+as_of_year
+sequence_number
+
+loan_type_name
+loan_type
+
+loan_purpose_name
+loan_purpose
+
+loan_amount_000s
+
+preapproval_name
+preapproval
+
+action_taken_name
+action_taken
+
+rate_spread
+
+hoepa_status_name
+hoepa_status
+
+lien_status_name
+lien_status
+
+edit_status_name
+edit_status
+
+application_date_indicator
+
+Purpose:
+Represents the mortgage loan/application being reported and the outcome,
+pricing, regulatory, and reporting information associated with it.
+
+
+ENTITY 4: PROPERTY
+------------------
+property_type_name
+property_type
+owner_occupancy_name
+owner_occupancy
+
+Purpose:
+Represents the property involved in the mortgage application.
+
+
+ENTITY 5: LOCATION
+------------------
+locationID
+
+msamd_name
+msamd
+
+state_name
+state_abbr
+state_code
+
+county_name
+county_code
+
+Purpose:
+Represents the geographic area in which the property is located.
+
+NOTE:
+locationID is the ONLY new attribute added.
+The assignment explicitly allows locationID to uniquely identify a location.
+
+
+ENTITY 6: APPLICANT
+-------------------
+applicant_ethnicity_name
+applicant_ethnicity
+
+applicant_race_name_1
+applicant_race_1
+
+applicant_race_name_2
+applicant_race_2
+
+applicant_race_name_3
+applicant_race_3
+
+applicant_race_name_4
+applicant_race_4
+
+applicant_race_name_5
+applicant_race_5
+
+applicant_sex_name
+applicant_sex
+
+applicant_income_000s
+
+Purpose:
+Represents the primary applicant associated with the mortgage application.
+
+
+ENTITY 7: CO-APPLICANT
+----------------------
+co_applicant_ethnicity_name
+co_applicant_ethnicity
+
+co_applicant_race_name_1
+co_applicant_race_1
+
+co_applicant_race_name_2
+co_applicant_race_2
+
+co_applicant_race_name_3
+co_applicant_race_3
+
+co_applicant_race_name_4
+co_applicant_race_4
+
+co_applicant_race_name_5
+co_applicant_race_5
+
+co_applicant_sex_name
+co_applicant_sex
+
+Purpose:
+Represents a co-applicant associated with the mortgage application,
+if one exists.
+
+
+ENTITY 8: PURCHASER
+-------------------
+purchaser_type_name
+purchaser_type
+
+Purpose:
+Represents purchaser information for the loan when applicable.
+
+
+ENTITY 9: DENIAL
+----------------
+denial_reason_name_1
+denial_reason_1
+
+denial_reason_name_2
+denial_reason_2
+
+denial_reason_name_3
+denial_reason_3
+
+Purpose:
+Represents the reported reasons for denial when a mortgage application
+is denied.
+
+
+ENTITY 10: CENSUS TRACT
+-----------------------
+census_tract_number
+
+population
+minority_population
+hud_median_family_income
+tract_to_msamd_income
+number_of_owner_occupied_units
+number_of_1_to_4_family_units
+
+Purpose:
+Represents the census tract in which the property is located and the
+demographic, income, and housing characteristics of that census tract.

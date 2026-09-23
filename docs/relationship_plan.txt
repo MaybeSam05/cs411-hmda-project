@@ -1,0 +1,162 @@
+HMDA 2017 NJ RELATIONSHIP PLAN
+
+
+IMPORTANT:
+This document explains the relationships that should be drawn between
+the entities in entity_plan.txt.
+
+Person 2 should convert these relationships into Crow's Foot / Oracle
+notation in draw.io.
+
+
+RELATIONSHIP 1: AGENCY TO INSTITUTION
+-------------------------------------
+
+AGENCY 1 ---- MANY INSTITUTION
+
+Each Institution is associated with one Agency.
+
+One Agency can be associated with many Institutions.
+
+
+RELATIONSHIP 2: INSTITUTION TO LOAN APPLICATION
+------------------------------------------------
+
+INSTITUTION 1 ---- MANY LOAN APPLICATION
+
+Each Loan Application is reported by one Institution.
+
+One Institution can report many Loan Applications.
+
+NOTE:
+The HMDA sequence_number distinguishes loans for each respondent, so
+the institution/respondent is directly connected to the loan application.
+
+
+RELATIONSHIP 3: LOAN APPLICATION TO APPLICANT
+----------------------------------------------
+
+LOAN APPLICATION 1 ---- 1 APPLICANT
+
+Each Loan Application has one primary Applicant record.
+
+Each Applicant record in this dataset belongs to one Loan Application.
+
+
+RELATIONSHIP 4: LOAN APPLICATION TO CO-APPLICANT
+-------------------------------------------------
+
+LOAN APPLICATION 1 ---- ZERO OR ONE CO-APPLICANT
+
+A Loan Application may have no Co-Applicant.
+
+A Loan Application may have one Co-Applicant.
+
+Each Co-Applicant record belongs to one Loan Application.
+
+This relationship is OPTIONAL on the Co-Applicant side.
+
+
+RELATIONSHIP 5: LOAN APPLICATION TO PROPERTY
+---------------------------------------------
+
+LOAN APPLICATION 1 ---- 1 PROPERTY
+
+Each Loan Application describes one Property.
+
+Each Property record in this dataset is associated with one Loan Application.
+
+
+RELATIONSHIP 6: LOCATION TO CENSUS TRACT
+----------------------------------------
+
+LOCATION 1 ---- MANY CENSUS TRACT
+
+Each Census Tract belongs to one Location.
+
+One Location can contain many Census Tracts.
+
+The Location contains the MSA/MD, state, and county information,
+while Census Tract contains the tract-specific information.
+
+
+RELATIONSHIP 7: CENSUS TRACT TO PROPERTY
+----------------------------------------
+
+CENSUS TRACT 1 ---- MANY PROPERTY
+
+Each Property is located in one Census Tract.
+
+One Census Tract can contain many Properties.
+
+
+RELATIONSHIP 8: LOAN APPLICATION TO PURCHASER
+----------------------------------------------
+
+LOAN APPLICATION 1 ---- ZERO OR ONE PURCHASER
+
+A Loan Application may have no Purchaser if the loan was not sold.
+
+If purchaser information applies, the application has one reported
+purchaser type.
+
+Each Purchaser record belongs to one Loan Application.
+
+This relationship is OPTIONAL on the Purchaser side.
+
+
+RELATIONSHIP 9: LOAN APPLICATION TO DENIAL
+-------------------------------------------
+
+LOAN APPLICATION 1 ---- ZERO OR ONE DENIAL
+
+A Loan Application does not need to have a Denial record.
+
+If the application is denied and denial information is reported,
+it can have one Denial record.
+
+The Denial record can contain up to three reported denial reasons.
+
+Each Denial record belongs to one Loan Application.
+
+This relationship is OPTIONAL on the Denial side.
+
+
+SUMMARY
+-------
+
+Agency
+  1 to many
+Institution
+
+Institution
+  1 to many
+Loan Application
+
+Loan Application
+  1 to 1
+Applicant
+
+Loan Application
+  1 to zero-or-one
+Co-Applicant
+
+Loan Application
+  1 to 1
+Property
+
+Location
+  1 to many
+Census Tract
+
+Census Tract
+  1 to many
+Property
+
+Loan Application
+  1 to zero-or-one
+Purchaser
+
+Loan Application
+  1 to zero-or-one
+Denial
