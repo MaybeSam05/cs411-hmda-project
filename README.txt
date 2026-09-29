@@ -42,51 +42,109 @@ Resources consulted:
 3. INSIGHTS AND ENTITY DECOMPOSITION
 =====================================================================
 Data: 2017 HMDA loan/application records for New Jersey (349,563 rows,
-78 attributes), loaded into one wide table, public.Preliminary.
+78 attributes), loaded into one wide table, public.
 
-Insights (replace/confirm with your own queries and results):
-- [e.g. approval vs. denial rates by loan purpose or county]
-- [e.g. most common denial reasons and how they vary by applicant income]
-- [e.g. relationship between census tract minority_population and
-  denial rate, or applicant income and loan amount]
-- [e.g. which lenders (respondent_id/agency) originate the most loans]
+Denial rate below = denied / (originated + denied), so withdrawn, closed,
+purchased and approved-but-not-accepted files are excluded. Base: 218,410
+decided applications; overall denial rate 22.5%.
+ 
+1. Outcome mix. Of 349,563 records, 169,196 (48.4%) were originated,
+   54,938 (15.7%) were loans purchased by an institution, 49,214 (14.1%)
+   were denied, 48,680 (13.9%) were withdrawn, 17,940 (5.1%) were closed
+   for incompleteness and 9,586 (2.7%) were approved but not accepted.
+   Only 9 rows are preapproval requests. Just over half of all records
+   are not an origination, so a file's presence in HMDA says little about
+   whether the borrower got a loan.
+ 
+2. Loan purpose is the strongest driver of denial. Home improvement loans
+   are denied 45.6% of the time, refinancing 29.8%, home purchase 13.1%.
+   Home purchase is the largest group (184,956 records) but is the safest
+   to approve; home improvement is the smallest (25,529) and by far the
+   riskiest to apply for. Median loan sizes are $261k (purchase), $233k
+   (refinance), $50k (improvement); median applicant income is about
+   $100-103k for all three, so the gap is not explained by income.
+ 
+3. Racial and ethnic disparities in denial. Denial rates: American Indian/
+   Alaska Native 44.3% (n=1,074), Black 35.7% (n=16,098), White 20.0%
+   (n=146,759), Asian 18.8% (n=19,545). Hispanic/Latino applicants are
+   denied 27.5% vs 20.9% for non-Hispanic. These gaps persist within
+   income bands: for applicants earning $50-100k, Black applicants are
+   denied 33.1% vs 20.8% White and 21.6% Asian; above $250k it is 25.5%
+   vs 13.0% White and 14.1% Asian. So income alone does not explain the
+   difference (though this data lacks credit score and debt-to-income, so
+   we cannot claim discrimination). Applicants who did not provide race
+   are denied 30.5% of the time, and 30,408 applications have no race
+   reported, which is itself a data-quality issue.
+ 
+4. Sex. Female applicants are denied 24.5% vs 20.8% for male applicants
+   (62,473 vs 135,922 decided). Male applicants make up 68.5% of decided
+   applications with a reported male or female sex.
+ 
+5. Income. Denial falls steadily as income rises: 41.6% for incomes up to
+   $50k, 24.0% for $50-100k, 18.4% for $100-150k, 15.7% for $150-250k, and
+   14.7% above $250k. 14.5% of all records have no income (mostly
+   purchased loans), so income analyses drop those rows.
+ 
+6. Geography. Among counties with at least 2,000 decided applications,
+   denial is highest in Cumberland (33.4%), Atlantic (26.8%), Camden
+   (26.7%) and Essex (25.8%) and lowest in Morris (17.8%), Cape May
+   (19.2%) and Somerset (19.3%). Denial also rises with the tract's
+   minority share: 19.7% where minority population is 0-20%, 21.0% for
+   20-40%, 23.7% for 40-60%, 26.6% for 60-80%, and 33.5% for 80-100%.
+ 
+7. Stated reasons for denial. Among 49,214 denials, the top primary
+   reasons are debt-to-income ratio (10,360; 21.1%), credit history
+   (8,816; 17.9%), collateral (7,021; 14.3%) and incomplete application
+   (5,486; 11.1%). 24.4% of denials list no reason at all because
+   reporting is optional for some agencies, so these percentages
+   understate the true reason mix.
+ 
+8. Lender concentration. 758 lenders originated at least one loan (854
+   appear in the file). The top lender by originations (respondent
+   0000451965, CFPB) made 12,205 loans; the top 10 lenders account for
+   31.6% of all originations. By regulating agency, HUD-supervised
+   institutions file 196,440 records (56.2%) and CFPB 113,439 (32.5%).
+ 
+9. Loan product. Conventional loans are 71.6% of records (250,133), FHA
+   23.3% (81,517), VA 4.5% (15,845), FSA/RHS 0.6% (2,068). VA loans have
+   the highest denial rate (29.1%) and FSA/RHS the lowest (18.6%).
+ 
+10. Sparse fields. Only 8,816 records (2.5%) have a rate_spread (it is
+    reported only for higher-priced loans), and just 26 loans are HOEPA
+    loans. These columns are mostly NULL in the database.
 
-Rules used to divide attributes into entities:
-1. Each *_name column is functionally determined by its matching code column
-   (e.g. loan_type_name by loan_type), so code/name pairs move together into
-   a lookup entity keyed by the code.
-2. Attributes describing the same real-world thing are grouped: location
-   (msamd, state, county, census tract), census tract demographics
-   (population, minority_population, hud_median_family_income,
-   tract_to_msamd_income, owner-occupied and 1-4 family units), lender
-   (respondent_id, agency), and applicant / co-applicant demographics
-   (ethnicity, race 1-5, sex).
-3. Repeating groups (applicant_race_1..5, co_applicant_race_1..5,
-   denial_reason_1..3) are split into separate rows in their own tables
-   rather than left as numbered columns.
-4. Attributes that describe the loan application itself (amount, income,
-   action taken, purchaser type, lien status, rate spread, HOEPA status,
-   application date indicator) stay in the central application entity, which
-   references the others by foreign key.
-5. Each entity gets a key that is either an existing code (lookup tables)
-   or the source-row sequence_number (the application).
+- Entities and the rules used to derive them ---
+Rules:
+R1. A code column and its *_name column determine each other (loan_type ->
+    loan_type_name), so each pair becomes its own lookup table keyed by the
+    code. This removes the repeated text from 349k rows.
+R2. Columns describing the same real-world thing go in one table: a lender,
+    a location hierarchy (state > county > census tract), a census tract's
+    demographics, and the application itself.
+R3. Non-key columns must depend on the whole key and nothing but the key
+    (3NF). Tract demographics depend on the tract, not on the loan, so they
+    live in Census_Tract.
+R4. Repeating column groups are turned into rows of a child table:
+    applicant_race_1..5, co_applicant_race_1..5, and denial_reason_1..3.
+R5. HMDA respondent_id is only unique within an agency, so Respondent uses
+    (respondent_id, agency_code) as its key.
 
-[Adjust the entity list and rules so they match your ER diagram in
-/er-diagram exactly.]
-
-=====================================================================
-4. PROBLEMS FACED AND TIME SPENT
 =====================================================================
 Problems:
-- [e.g. iLab/psql setup, \copy needing one line, CSV quoting and blank vs.
-  NULL fields, leading zeros in census tracts, exact diff of the exported
-  CSV, rate_spread formatting]
-- [anything else]
-
-Time spent: about [N] hours total ([N] each).
+- Leading zeros: census tracts such as 0218.04 and some IDs are identifiers,
+  not numbers; loading them as numeric dropped the zeros, so they are TEXT.
+- Exact round trip: diff must show zero differences, which required
+  quoting every field (FORCE_QUOTE *), an unquoted header, LF line endings,
+  restoring the blank sequence_number column, and the 01.50 rate_spread
+  format.
+- Sequence bug risk: inserting explicit sequence_number values does not
+  advance BIGSERIAL, so we call setval() afterward to avoid future key
+  collisions.
+Time spent: 8 hours (Including review)
 
 =====================================================================
 5. DATABASE USED FOR GRADING
 =====================================================================
-[Team member's full name / netid] has the data stored in their database
-(iLab account: [netid], database: [name]).
+Nandan Ranadive (netid: nr809) has the data stored in their database
+
+
