@@ -1,18 +1,22 @@
-CS411 HMDA Project - README
+CS336 HMDA Project 1 - README
 Repo: https://github.com/MaybeSam05/cs411-hmda-project
 
 =====================================================================
 0. TEAM MEMBERS
 =====================================================================
-- Samarth Verma - sv865
+- Samarth Verma - netid: sv865
 - Nandan Ranadive - netid: nr809
 - Ansh Krishna - netid: ak2664
-- Aavash Lamichhane - netid: al1752 
+- Aavash Lamichhane - netid: al1752
 
 =====================================================================
 1. KNOWN ISSUES
 =====================================================================
-There were no issues, nothing was printed and it exited with a status 0.
+There are no known issues. The import script loaded all 349,563 records,
+assigned unique sequence_number values from 1 through 349,563, and preserved
+the required data types. The export script reconstructed a CSV that was
+byte-for-byte identical to the original; diff printed no differences and
+returned exit status 0.
 
 =====================================================================
 2. COLLABORATION, RESOURCES, AND AI DISCLOSURE
@@ -115,22 +119,34 @@ decided applications; overall denial rate 22.5%.
 
 - Entities and the rules used to derive them ---
 Rules:
-R1. A code column and its *_name column determine each other (loan_type ->
-    loan_type_name), so each pair becomes its own lookup table keyed by the
-    code. This removes the repeated text from 349k rows.
-R2. Columns describing the same real-world thing go in one table: a lender,
-    a location hierarchy (state > county > census tract), a census tract's
-    demographics, and the application itself.
-R3. Non-key columns must depend on the whole key and nothing but the key
-    (3NF). Tract demographics depend on the tract, not on the loan, so they
-    live in Census_Tract.
-R4. Repeating column groups are turned into rows of a child table:
-    applicant_race_1..5, co_applicant_race_1..5, and denial_reason_1..3.
-R5. HMDA respondent_id is only unique within an agency, so Respondent uses
-    (respondent_id, agency_code) as its key.
+R1. Attributes were grouped by the real-world subject they describe. The ER
+    diagram therefore uses Agency, Institution, Loan Application, Applicant,
+    Co-Applicant, Property, Location, Census Tract, Purchaser, and Denial.
+R2. Every one of the 78 source attributes appears in at least one entity. No
+    source attribute was removed or renamed, and locationID is the only new
+    attribute because the assignment specifically permits it.
+R3. Code attributes remain beside their corresponding plain-language name
+    attributes in the entity they describe. For example, loan_type and
+    loan_type_name are both in Loan Application, while property_type and
+    property_type_name are both in Property. This preserves both versions
+    supplied by the source file.
+R4. Applicant and Co-Applicant are separate because they represent different
+    roles in an application. The numbered race fields and denial-reason fields
+    remain as source attributes because this part of the project requires all
+    downloaded attributes to appear and postpones normalization until the next
+    part of the project.
+R5. Geographic attributes were divided into Location and Census Tract.
+    Location contains MSA/MD, state, and county information; Census Tract
+    contains the tract number and tract-level demographic and housing data.
+R6. Relationships follow the meaning of the data. An Agency oversees many
+    Institutions, an Institution reports many Loan Applications, and each Loan
+    Application has one Applicant and one Property. A Loan Application may
+    optionally have a Co-Applicant, Purchaser, or Denial. A Location contains
+    many Census Tracts, and a Census Tract can contain many Properties.
 
 =====================================================================
-Problems:
+4. DEVELOPMENT PROBLEMS AND TIME SPENT
+=====================================================================
 - Leading zeros: census tracts such as 0218.04 and some IDs are identifiers,
   not numbers; loading them as numeric dropped the zeros, so they are TEXT.
 - Exact round trip: diff must show zero differences, which required
@@ -140,11 +156,10 @@ Problems:
 - Sequence bug risk: inserting explicit sequence_number values does not
   advance BIGSERIAL, so we call setval() afterward to avoid future key
   collisions.
-Time spent: 8 hours (Including review)
+Time spent: approximately 8 hours, including review.
 
 =====================================================================
 5. DATABASE USED FOR GRADING
 =====================================================================
 Nandan Ranadive (netid: nr809) has the data stored in their database
-
 
